@@ -752,7 +752,7 @@ static unsigned long move_vma(struct vm_area_struct *vma,
 
 	vma_start_write(vma);
 	new_pgoff = vma_pgoff_offset(vma, old_addr);
-	new_vma = copy_vma(&vma, new_addr, new_len, new_pgoff,
+	new_vma = copy_vma(&vma, old_addr, new_addr, new_len, new_pgoff,
 			   &need_rmap_locks);
 	if (!new_vma) {
 		if (vm_flags & VM_ACCOUNT)
@@ -1079,15 +1079,17 @@ SYSCALL_DEFINE5(mremap, unsigned long, addr, unsigned long, old_len,
 	if (!new_len)
 		return ret;
 
-	if ((flags & MREMAP_FIXED) &&
-	    !mm_mremap_fixed_keeps_slice(addr, new_addr))
-		return ret;
-
 	if (mmap_write_lock_killable(current->mm))
 		return -EINTR;
 	vma = vma_lookup(mm, addr);
 	if (!vma) {
 		ret = -EFAULT;
+		goto out;
+	}
+
+	if ((flags & MREMAP_FIXED) &&
+	    !mm_mremap_fixed_keeps_slice(vma, addr, new_addr)) {
+		ret = -EINVAL;
 		goto out;
 	}
 
