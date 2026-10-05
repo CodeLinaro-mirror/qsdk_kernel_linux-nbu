@@ -1618,7 +1618,7 @@ free_vma:
 	vm_area_free(vma);
 unacct_error:
 	if (charged)
-		vm_unacct_memory(charged);
+		vm_unacct_memory_mm(mm, charged);
 
 abort_munmap:
 	vms_abort_munmap_vmas(&vms, &mas_detach);
@@ -1906,7 +1906,7 @@ out:
 mas_store_fail:
 	vm_area_free(vma);
 unacct_fail:
-	vm_unacct_memory(len >> PAGE_SHIFT);
+	vm_unacct_memory_mm(mm, len >> PAGE_SHIFT);
 	return -ENOMEM;
 }
 
@@ -2025,7 +2025,7 @@ void exit_mmap(struct mm_struct *mm)
 destroy:
 	__mt_destroy(&mm->mm_mt);
 	mmap_write_unlock(mm);
-	vm_unacct_memory(nr_accounted);
+	vm_unacct_memory_mm(mm, nr_accounted);
 }
 
 /* Insert vm structure into process list sorted by address
@@ -2063,7 +2063,7 @@ int insert_vm_struct(struct mm_struct *mm, struct vm_area_struct *vma)
 
 	if (vma_link(mm, vma)) {
 		if (vma->vm_flags & VM_ACCOUNT)
-			vm_unacct_memory(charged);
+			vm_unacct_memory_mm(mm, charged);
 		return -ENOMEM;
 	}
 
