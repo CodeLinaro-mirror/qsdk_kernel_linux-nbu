@@ -836,6 +836,10 @@ static int gunyah_vm_start(struct gunyah_vm *ghvm)
 	if (ret)
 		goto err_dealloc_vmid;
 
+	ret = gunyah_vm_set_protected(ghvm);
+	if (ret)
+		goto err_dealloc_vmid;
+
 	if (ghvm->fw.config.size > 0) {
 		ghvm->fw.parcel.start = gunyah_gpa_to_gfn(ghvm->fw.config.guest_phys_addr);
 		ghvm->fw.parcel.pages = gunyah_gpa_to_gfn(ghvm->fw.config.size);
@@ -1217,6 +1221,7 @@ static void _gunyah_vm_put(struct kref *kref)
 	xa_destroy(&ghvm->boot_context);
 	gunyah_rm_put(ghvm->rm);
 	mmdrop(ghvm->mm_s);
+	gunyah_vm_clear_protected(ghvm);
 	kfree(ghvm);
 }
 
