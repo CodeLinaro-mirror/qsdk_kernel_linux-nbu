@@ -1495,6 +1495,8 @@ static unsigned long __mmap_region(struct file *file, unsigned long addr,
 
 		/* Drivers cannot alter the address of the VMA. */
 		WARN_ON_ONCE(addr != vma->vm_start);
+		VM_WARN_ON_ONCE(vma_slice_off_stale(vma,
+				mm_mmap_pgoff(mm, file, pgoff)));
 		/*
 		 * Drivers should not permit writability when previously it was
 		 * disallowed.

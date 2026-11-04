@@ -663,7 +663,7 @@ static __latent_entropy int dup_mmap(struct mm_struct *mm,
 			if (retval)
 				goto loop_out;
 
-			vm_stat_account(mm, mpnt->vm_flags, -vma_pages(mpnt));
+			vm_stat_account(mm, mpnt->vm_flags, -vma_nr_ptes(mpnt));
 			continue;
 		}
 		charge = 0;
@@ -676,7 +676,7 @@ static __latent_entropy int dup_mmap(struct mm_struct *mm,
 			goto loop_out;
 		}
 		if (mpnt->vm_flags & VM_ACCOUNT) {
-			unsigned long len = vma_pages(mpnt);
+			unsigned long len = vma_nr_ptes(mpnt);
 
 			if (security_vm_enough_memory_mm(oldmm, len)) /* sic */
 				goto fail_nomem;
