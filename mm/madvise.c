@@ -1847,6 +1847,7 @@ static inline unsigned long get_untagged_addr(struct mm_struct *mm,
  */
 int do_madvise(struct mm_struct *mm, unsigned long start, size_t len_in, int behavior)
 {
+	P3S_CONTEXT_REMOTE_MM(mm);
 	unsigned long end;
 	int error;
 	size_t len;
